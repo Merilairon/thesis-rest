@@ -1,6 +1,13 @@
-let express = require("express");
-let router = express.Router();
-let Products = require("../data/models/product");
+const express = require("express");
+const router = express.Router();
+const expressJoi = require("express-joi-validator");
+const {
+  postProductSchema,
+  getProductSchema,
+  patchProductSchema,
+  deleteProductSchema,
+} = require("../validation");
+const {} = require("../permissions");
 const controller = require("../controller");
 
 router.get("/", async (req, res, next) => {
@@ -20,8 +27,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-//TODO: validate
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", expressJoi(getProductSchema), async (req, res, next) => {
   try {
     let product = await controller.product({ id: req.params.id });
     res.json({
@@ -38,8 +44,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-//TODO: validate
-router.post("/", async (req, res, next) => {
+router.post("/", expressJoi(postProductSchema), async (req, res, next) => {
   try {
     const { name, description, pictureUrl, price } = req.body;
     let product = await controller.insertProduct({
@@ -62,8 +67,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-//TODO: validate
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", expressJoi(patchProductSchema), async (req, res, next) => {
   try {
     const { name, description, pictureUrl, price } = req.body;
     let product = await controller.updateProduct({
@@ -87,24 +91,27 @@ router.patch("/:id", async (req, res, next) => {
   }
 });
 
-//TODO: validate
-router.delete("/:id", async (req, res, next) => {
-  try {
-    let product = await controller.deleteProduct({
-      id: req.params.id,
-    });
-    res.json({
-      success: true,
-      message: "Product deleted",
-      data: product,
-    });
-  } catch (e) {
-    res.json({
-      success: false,
-      message: `An error occured during the deletion procedure for product with id ${req.params.id}`,
-      data: {},
-    });
+router.delete(
+  "/:id",
+  expressJoi(deleteProductSchema),
+  async (req, res, next) => {
+    try {
+      let product = await controller.deleteProduct({
+        id: req.params.id,
+      });
+      res.json({
+        success: true,
+        message: "Product deleted",
+        data: product,
+      });
+    } catch (e) {
+      res.json({
+        success: false,
+        message: `An error occured during the deletion procedure for product with id ${req.params.id}`,
+        data: {},
+      });
+    }
   }
-});
+);
 
 module.exports = router;

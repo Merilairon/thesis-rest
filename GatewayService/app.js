@@ -20,7 +20,6 @@ const options = {
   },
 };
 
-//TODO: move targets to seperate file?
 const accountsProxy = createProxyMiddleware({
   target: "http://127.0.0.1:4001",
   pathRewrite: { "^/accounts": "" },

@@ -6,10 +6,9 @@ const mongooseHidden = require("mongoose-hidden")({
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
-//TODO: add roles
-
 const userSchema = new Schema({
   username: String,
+  roles: { type: [String], default: [] },
   email: String,
   hash: String,
   salt: String,
@@ -32,6 +31,7 @@ class User extends Model {
     user.username = input.username;
     user.email = input.email;
     user.setPassword(input.password);
+    user.roles = input.roles;
     return user.save().then(() => {
       return { ...user.toJSON(), token: user.generateJWT() };
     });
@@ -70,10 +70,14 @@ class User extends Model {
     return jwt.sign(
       {
         username: this.username,
-        id: this._id,
-        exp: parseInt(expirationDate.getTime() / 1000, 10),
+        roles: this.roles,
       },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      {
+        algorithm: "HS256",
+        expiresIn: parseInt(expirationDate.getTime() / 1000, 10),
+        subject: `${this._id}`,
+      }
     );
   }
 }

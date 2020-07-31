@@ -1,3 +1,5 @@
+const Orders = require("../data/models/order");
+
 module.exports = {
   order: async ({ id }) => {
     return await Orders.getOneOrder({ _id: id });
@@ -5,7 +7,9 @@ module.exports = {
   orders: async () => {
     return await Orders.getAllOrders();
   },
-  accountOrders: async () => {},
+  accountOrders: async ({ account }) => {
+    return await Orders.getAccountOrders({ account: account.id });
+  },
   insertOrder: async (products, user) => {
     let order = await Orders.insertOrder({
       account: user.sub,
