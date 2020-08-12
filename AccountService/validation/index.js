@@ -18,7 +18,7 @@ module.exports = {
   }),
   //params
   getAccountSchema: celebrate({
-    [Segments.QUERY]: Joi.object({
+    [Segments.PARAMS]: Joi.object({
       id: Joi.string().required(),
     }),
   }),
