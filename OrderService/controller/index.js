@@ -10,9 +10,9 @@ module.exports = {
   accountOrders: async ({ account }) => {
     return await Orders.getAccountOrders({ account: account.id });
   },
-  insertOrder: async (products, user) => {
+  insertOrder: async ({ products, account }) => {
     let order = await Orders.insertOrder({
-      account: user.sub,
+      account,
       products,
       status: false,
     });

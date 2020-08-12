@@ -1,8 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const { createProxyMiddleware } = require("http-proxy-middleware");
 const expressJwt = require("express-jwt");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
+const port = process.env.PORT || 4000;
 const app = express();
 
 app.use(
@@ -16,7 +17,7 @@ app.use(
 const options = {
   changeOrigin: true,
   onProxyReq: (proxyReq, req, res) => {
-    proxyReq.setHeader("user", JSON.stringify(req.user));
+    if (req.user) proxyReq.setHeader("user", JSON.stringify(req.user));
   },
 };
 
@@ -42,4 +43,19 @@ app.use("/accounts", accountsProxy);
 app.use("/products", productsProxy);
 app.use("/orders", ordersProxy);
 
-app.listen(4000);
+app.get("/v", async (req, res, next) => {
+  res.json({ version: "1.0.0" });
+});
+
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({
+    success: false,
+    message: err.message,
+    data: {},
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Gateway is running on port ${port}.`);
+});

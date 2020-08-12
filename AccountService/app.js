@@ -1,15 +1,13 @@
 require("dotenv").config();
 const createError = require("http-errors");
 const express = require("express");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const passport = require("passport");
 const morgan = require("morgan");
-const winston = require(`./config/winston`);
+const { errors } = require("celebrate");
 
-const db = require("./data/database");
-db.connectDatabase();
-db.initializeModels();
+const port = process.env.PORT || 4001;
+const winston = require(`./config/winston`);
+const { connectDatabase } = require("./data/database");
+connectDatabase();
 
 const indexRouter = require("./routes/index");
 
@@ -18,7 +16,7 @@ const app = express();
 app.use(morgan("tiny", { stream: winston.stream }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(errors());
 
 app.use((req, res, next) => {
   if (req.headers.user) req.user = JSON.parse(req.headers.user);
@@ -34,13 +32,16 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
-  res.json("error");
+  res.json({
+    success: false,
+    message: err.message,
+    data: {},
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Account Service is running on port ${port}.`);
 });
 
 module.exports = app;

@@ -1,17 +1,22 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+require("dotenv").config();
+const createError = require("http-errors");
+const express = require("express");
+const morgan = require("morgan");
+const { errors } = require("celebrate");
 
-var indexRouter = require("./routes/index");
+const port = process.env.PORT || 4003;
+const winston = require(`./config/winston`);
+const { connectDatabase } = require("./data/database");
+connectDatabase();
 
-var app = express();
+const indexRouter = require("./routes/index");
 
-app.use(logger("dev"));
+const app = express();
+
+app.use(morgan("tiny", { stream: winston.stream }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(errors());
 
 app.use((req, res, next) => {
   if (req.headers.user) req.user = JSON.parse(req.headers.user);
@@ -27,13 +32,16 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
-  res.json("error");
+  res.json({
+    success: false,
+    message: err.message,
+    data: {},
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Account Service is running on port ${port}.`);
 });
 
 module.exports = app;

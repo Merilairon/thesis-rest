@@ -1,29 +1,33 @@
-const Joi = require("joi");
+const { celebrate, Joi, Segments } = require("celebrate");
 
 module.exports = {
-  postRegisterSchema: {
-    body: {
+  //body
+  postRegisterSchema: celebrate({
+    [Segments.BODY]: Joi.object({
       username: Joi.string().required(),
-      email: Joi.string().require(),
+      email: Joi.string().required().email(),
       password: Joi.string().required(),
-    },
-  },
-  postLoginSchema: {
-    body: {
+    }),
+  }),
+  //body
+  postLoginSchema: celebrate({
+    [Segments.BODY]: Joi.object({
       username: Joi.string().required(),
       password: Joi.string().required(),
-    },
-  },
-  getAccountSchema: {
-    params: {
+    }),
+  }),
+  //params
+  getAccountSchema: celebrate({
+    [Segments.QUERY]: Joi.object({
       id: Joi.string().required(),
-    },
-  },
-  patchAccountSchema: {
-    body: {
+    }),
+  }),
+  //body
+  patchAccountSchema: celebrate({
+    [Segments.BODY]: Joi.object({
       username: Joi.string().optional(),
       email: Joi.string().optional(),
       password: Joi.string().optional(),
-    },
-  },
+    }),
+  }),
 };
