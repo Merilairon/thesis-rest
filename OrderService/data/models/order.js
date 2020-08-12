@@ -31,7 +31,6 @@ class Order extends Model {
   }
 
   static async insertOrder(input) {
-    console.log(input);
     let order = this(input);
     return order.save().then(() => order);
   }

@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(errors());
 
 app.use((req, res, next) => {
-  if (req.headers.user) req.user = JSON.parse(req.headers.user);
+  req.user = req.headers.user ? JSON.parse(req.headers.user) : null;
   next();
 });
 
